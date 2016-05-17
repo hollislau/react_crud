@@ -6,9 +6,21 @@
     "jasmine": true,
     "protractor": true
   },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
   "globals": {
 
   },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "react"
+  ],
   "rules": {
     "indent": ["error", 2],
     "comma-dangle": 2,

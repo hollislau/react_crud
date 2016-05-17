@@ -25,7 +25,12 @@ gulp.task("webpack:dev", () => {
     .pipe(webpack({
       devtool: "source-map",
       output: {
-        filename: "main.js"
+        filename: "bundle.js"
+      },
+      module: {
+        loaders: [
+          { test: /\.js$/, include: __dirname + "/app/js", loader: "babel-loader" }
+        ]
       }
     }))
     .pipe(gulp.dest("build/js"));
