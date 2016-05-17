@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const React = require("react");
 const ReactDOM = require("react-dom");
 const update = require("react-addons-update");
@@ -29,6 +30,12 @@ var StarTrek = React.createClass({
     });
   },
 
+  updateChar: function (index, char) {
+    this.setState({
+      characters: update(this.state.characters, { $splice: [[index, 1, char]] })
+    });
+  },
+
   removeChar: function (index) {
     this.setState({
       characters: update(this.state.characters, { $splice: [[index, 1]] })
@@ -41,7 +48,7 @@ var StarTrek = React.createClass({
         <h2>Add A New Character</h2>
         <AddChar addNew={ this.addChar }/>
         <h2>Your Collection</h2>
-        <CharList delChar={ this.removeChar } chars={ this.state.characters }/>
+        <CharList editChar={ this.updateChar } delChar={ this.removeChar } chars={ this.state.characters }/>
       </section>
     );
   }
@@ -107,7 +114,8 @@ var AddChar = React.createClass({
 var CharList = React.createClass({
   propTypes: {
     chars: React.PropTypes.array.isRequired,
-    delChar: React.PropTypes.func.isRequired
+    delChar: React.PropTypes.func.isRequired,
+    editChar: React.PropTypes.func.isRequired
   },
 
   handleDelChar: function (char) {
@@ -124,11 +132,12 @@ var CharList = React.createClass({
   },
 
   render: function () {
-    var listChars = this.props.chars.map((character) => {
+    var listChars = this.props.chars.map((character, index) => {
       return (
         <li key={ character._id }>
           { character.name } | Gender: { character.gender } | Rank: { character.rank } |
           Weapon: { character.weapon } | Power: { character.power } | Ship: { character.ship }
+          <EditChar editChar={ this.props.editChar } char={ character } idx={ index }/>
           <button onClick={() => {this.handleDelChar(character);}}>Delete</button>
         </li>
       );
@@ -137,6 +146,67 @@ var CharList = React.createClass({
       <ul>
         { listChars }
       </ul>
+    );
+  }
+});
+
+var EditChar = React.createClass({
+  propTypes: {
+    char: React.PropTypes.object.isRequired,
+    editChar: React.PropTypes.func.isRequired,
+    idx: React.PropTypes.number.isRequired
+  },
+
+  getInitialState: function () {
+    return {
+      modChar: this.props.char
+    };
+  },
+
+  updateModChar: function (e) {
+    var nextState = this.state.modChar;
+
+    nextState[e.target.name] = e.target.value;
+    this.setState({
+      modChar: nextState
+    });
+  },
+
+  handleEditChar: function (e) {
+    var char = this.state.modChar;
+
+    e.preventDefault();
+
+    for (var key in char) {
+      if (!char[key]) delete char[key];
+    }
+
+    char._id = this.props.char._id;
+
+    request
+      .put(baseUrl + "/" + this.props.char._id)
+      .send(char)
+      .end((err) => {
+        if (err) return console.error(err);
+
+        this.props.editChar(this.props.idx, char);
+        this.setState({
+          modChar: this.state.modChar
+        });
+      });
+  },
+
+  render: function () {
+    return (
+      <form onSubmit={ this.handleEditChar }>
+        <label> Name <input type="text" name="name" value={ this.state.modChar.name } onChange={ this.updateModChar }/></label>
+        <label> Gender <input type="text" name="gender" value={ this.state.modChar.gender } onChange={ this.updateModChar }/></label>
+        <label> Rank <input type="text" name="rank" value={ this.state.modChar.rank } onChange={ this.updateModChar }/></label>
+        <label> Weapon <input type="text" name="weapon" value={ this.state.modChar.weapon } onChange={ this.updateModChar }/></label>
+        <label> Power <input type="text" name="power" value={ this.state.modChar.power } onChange={ this.updateModChar }/></label>
+        <label> Ship <input type="text" name="ship" value={ this.state.modChar.ship } onChange={ this.updateModChar }/></label>
+        <button>Edit</button>
+      </form>
     );
   }
 });
