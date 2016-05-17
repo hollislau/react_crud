@@ -205,7 +205,7 @@ var EditChar = React.createClass({
         <label> Weapon <input type="text" name="weapon" value={ this.state.modChar.weapon } onChange={ this.updateModChar }/></label>
         <label> Power <input type="text" name="power" value={ this.state.modChar.power } onChange={ this.updateModChar }/></label>
         <label> Ship <input type="text" name="ship" value={ this.state.modChar.ship } onChange={ this.updateModChar }/></label>
-        <button>Edit</button>
+        <button>Update</button>
       </form>
     );
   }
